@@ -403,7 +403,7 @@ elif chart == "Crash severity by weather condition":
 st.divider()
 
 
-# Model Performance (Your Section)
+# Model Performance (Gaia)
 
 st.header("📈 Model Performance")
 
