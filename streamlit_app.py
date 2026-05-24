@@ -20,7 +20,7 @@ st.set_page_config(
 @st.cache_resource
 def load_model():
 
-    model = joblib.load("rf_model.pkl")
+    model = joblib.load("random_forest_model.pkl")
     columns = joblib.load("model_columns.pkl")
 
     return model, columns
