@@ -451,3 +451,24 @@ The goal of the project was to:
 The final deployed model uses Random Forest classification to estimate the
 likelihood of a serious or fatal crash based on selected crash conditions.
 """)
+
+st.divider()
+
+# Team Credits
+
+st.header("👥 Project Team")
+
+st.markdown("""
+This application was collaboratively developed by:
+
+- Rensei Kawakami
+- Anika Nield-Patterson
+- Adem Robati-Mani
+- Gaia Lowe
+
+### Team Contributions
+- **Rensei Kawakami** — User input interface and Streamlit components
+- **Anika Nield-Patterson** — Machine learning model integration and prediction system
+- **Adem Robati-Mani** — Data visualisations and crash insight charts
+- **Gaia Lowe** — Model evaluation, app integration, layout and polishing
+""")
