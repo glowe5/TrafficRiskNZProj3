@@ -29,9 +29,7 @@ def load_model():
 @st.cache_data
 def load_data():
 
-    cas = pd.read_csv(
-        "https://opendata-nzta.opendata.arcgis.com/datasets/NZTA::crash-analysis-system-cas-data-1.csv"
-    )
+    cas = pd.read_csv("cas_small.csv")
 
     return cas
 
