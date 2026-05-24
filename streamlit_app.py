@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import joblib
-import gdown
+
 
 # Page Config
 
@@ -19,19 +19,6 @@ st.set_page_config(
 
 @st.cache_resource
 def load_model():
-
-    # Download model files from Google Drive
-    gdown.download(
-        "https://drive.google.com/uc?id=1mKPIErvTlYCc_m61ACv8l-gurNhwrKb9",
-        "rf_model.pkl",
-        quiet=False
-    )
-
-    gdown.download(
-        "https://drive.google.com/uc?id=1StLwxf24kYBCN8e-8mdABziUewGoss_P",
-        "model_columns.pkl",
-        quiet=False
-    )
 
     model = joblib.load("rf_model.pkl")
     columns = joblib.load("model_columns.pkl")
@@ -242,3 +229,227 @@ chart = st.selectbox(
         "Crash severity by weather condition"
     ]
 )
+
+
+# Crash Severity Distribution
+
+if chart == "Crash severity distribution":
+
+    severity_counts = cas["crashSeverity"].value_counts().reindex(
+        [
+            "Non-Injury Crash",
+            "Minor Crash",
+            "Serious Crash",
+            "Fatal Crash"
+        ]
+    )
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    ax.bar(
+        severity_counts.index,
+        severity_counts.values
+    )
+
+    ax.set_title("Crash Severity Distribution")
+    ax.set_xlabel("Crash Severity")
+    ax.set_ylabel("Number of Crashes")
+
+    st.pyplot(fig)
+
+
+# Crashes by Year
+
+elif chart == "Crashes by year":
+
+    year_counts = cas["crashYear"].dropna().astype(int)
+
+    year_counts = (
+        year_counts[year_counts < 2026]
+        .value_counts()
+        .sort_index()
+    )
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    ax.bar(
+        year_counts.index,
+        year_counts.values
+    )
+
+    ax.set_title("Total Crashes by Year")
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Number of Crashes")
+
+    plt.xticks(rotation=45)
+
+    st.pyplot(fig)
+
+
+# Top Regions
+
+elif chart == "Top 10 regions by total crashes":
+
+    region_counts = cas["region"].fillna("Unknown")
+
+    region_counts = region_counts.str.replace(
+        " Region",
+        "",
+        regex=False
+    )
+
+    top_regions = (
+        region_counts.value_counts()
+        .head(10)
+        .sort_values()
+    )
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    ax.barh(
+        top_regions.index,
+        top_regions.values
+    )
+
+    ax.set_title("Top 10 Regions by Total Crashes")
+    ax.set_xlabel("Number of Crashes")
+    ax.set_ylabel("Region")
+
+    st.pyplot(fig)
+
+
+# Crash Severity by Region
+
+elif chart == "Crash severity by region":
+
+    region_data = cas[["region", "crashSeverity"]].copy()
+
+    region_data["region"] = (
+        region_data["region"]
+        .fillna("Unknown")
+        .str.replace(" Region", "", regex=False)
+    )
+
+    region_severity = pd.crosstab(
+        region_data["region"],
+        region_data["crashSeverity"]
+    )
+
+    region_severity["total"] = region_severity.sum(axis=1)
+
+    region_severity = (
+        region_severity
+        .sort_values("total", ascending=False)
+        .head(10)
+        .drop("total", axis=1)
+    )
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    region_severity.plot(
+        kind="barh",
+        stacked=True,
+        ax=ax
+    )
+
+    ax.set_title("Crash Severity by Region")
+    ax.set_xlabel("Number of Crashes")
+    ax.set_ylabel("Region")
+
+    st.pyplot(fig)
+
+
+# Crash Severity by Weather
+
+elif chart == "Crash severity by weather condition":
+
+    weather_data = cas[
+        ["weatherA", "crashSeverity"]
+    ].copy()
+
+    weather_data["weatherA"] = (
+        weather_data["weatherA"]
+        .fillna("Unknown")
+    )
+
+    top_weather = (
+        weather_data["weatherA"]
+        .value_counts()
+        .head(10)
+        .index
+    )
+
+    weather_severity = pd.crosstab(
+        weather_data["weatherA"],
+        weather_data["crashSeverity"]
+    )
+
+    weather_severity = weather_severity.loc[top_weather]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    weather_severity.plot(
+        kind="bar",
+        stacked=True,
+        ax=ax
+    )
+
+    ax.set_title("Crash Severity by Weather Condition")
+    ax.set_xlabel("Weather Condition")
+    ax.set_ylabel("Number of Crashes")
+
+    plt.xticks(rotation=0)
+
+    st.pyplot(fig)
+
+st.divider()
+
+
+# Model Performance (Your Section)
+
+st.header("📈 Model Performance")
+
+performance = pd.DataFrame({
+    "Model": [
+        "Logistic Regression",
+        "Decision Tree",
+        "Random Forest"
+    ],
+    "Accuracy": [
+        0.6255,
+        0.6588,
+        0.6901
+    ],
+    "F1 Score": [
+        0.1750,
+        0.1763,
+        0.1862
+    ]
+})
+
+st.dataframe(performance)
+
+st.markdown("""
+Random Forest achieved the strongest overall performance across the evaluated
+machine learning models and was therefore selected for deployment in the final application.
+""")
+
+st.divider()
+
+
+# About Section
+
+st.header("ℹ️ About This Project")
+
+st.markdown("""
+This project was developed using the New Zealand Crash Analysis System (CAS) dataset.
+
+The goal of the project was to:
+- explore crash trends and conditions,
+- analyse crash severity patterns,
+- train machine learning models,
+- and develop an interactive web application capable of predicting crash severity risk.
+
+The final deployed model uses Random Forest classification to estimate the
+likelihood of a serious or fatal crash based on selected crash conditions.
+""")
