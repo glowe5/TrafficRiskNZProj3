@@ -34,7 +34,7 @@ def load_data():
     return cas
 
 
-rf_model, model_columns = load_model()
+random_forest_model, model_columns = load_model()
 cas = load_data()
 
 
@@ -179,9 +179,9 @@ if st.button("Predict Crash Severity"):
             row[col] = 1
 
     # Predict
-    prediction = rf_model.predict(row)[0]
+    prediction = random_forest_model.predict(row)[0]
 
-    proba = rf_model.predict_proba(row)[0]
+    proba = random_forest_model.predict_proba(row)[0]
 
     high_severity_pct = round(proba[1] * 100, 1)
     low_severity_pct = round(proba[0] * 100, 1)
